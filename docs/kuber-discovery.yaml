@@ -1,0 +1,94 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kuber-discovery
+data:
+  "application.json": |
+    {"server":{"port":8761,"shutdown":"graceful"},"management":{"endpoints.web.exposure.include":"*","endpoint.health.probes.enabled":true},"eureka":{"server":{"enable-self-preservation":false},"client":{"fetch-registry":false,"register-with-eureka":false,"service-url":{"defaultZone":"http://kuber-discovery-0.kuber-discovery.default.svc:8761/eureka/,http://kuber-discovery-1.kuber-discovery.default.svc:8761/eureka/,http://kuber-discovery-2.kuber-discovery.default.svc:8761/eureka/"}}}}
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: kuber-discovery
+spec:
+  clusterIP: None
+  selector:
+    app.kubernetes.io/name: kuber-discovery
+  ports:
+    - port: 8761
+      name: kuber-discovery
+
+---
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: kuber-discovery
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kuber-discovery
+  serviceName: kuber-discovery
+  replicas: 3
+  template:
+    metadata:
+      name: kuber-discovery
+      labels:
+        app.kubernetes.io/name: kuber-discovery
+    spec:
+#      terminationGracePeriodSeconds: 30
+      containers:
+        - name: kuber-discovery
+          image: kuber/kuber-discovery:1.0.0
+          env:
+            - name: JAVA_TOOL_OPTIONS
+              value: -Xmx128m
+            - name: TZ
+              value: Asia/Shanghai
+            - name: SPRING_CONFIG_LOCATION
+              value: 'optional:classpath:/,optional:classpath:/config/,optional:file:./,optional:file:./config/'
+            - name: SPRING_APPLICATION_JSON
+              valueFrom:
+                configMapKeyRef:
+                  name: kuber-discovery
+                  key: application.json
+
+#          livenessProbe:
+#            timeoutSeconds: 5
+#            periodSeconds: 10
+#            httpGet:
+#              port: 8761
+#              path: /actuator/health/liveness
+#          readinessProbe:
+#            timeoutSeconds: 5
+#            periodSeconds: 10
+#            httpGet:
+#              port: 8761
+#              path: /actuator/health/readiness
+#          resources:
+#            requests:
+#              memory: "64Mi"
+#              cpu: "250m"
+#            limits:
+#              memory: "128Mi"
+#              cpu: "500m"
+#          lifecycle:
+#            preStop:
+#              exec:
+#                command: ["sh", "-c", "sleep 10"]
+          ports:
+            - containerPort: 8761
+              name: kuber-discovery
+#          volumeMounts:
+#            - mountPath: /config
+#              name: config
+#  volumeClaimTemplates:
+#    - metadata:
+#        name: config
+#      spec:
+#        accessModes: [ "ReadWriteOnce" ]
+#        resources:
+#          requests:
+#            storage: 1Mi

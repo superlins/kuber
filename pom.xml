@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    
+    <groupId>org.example</groupId>
+    <artifactId>kubers</artifactId>
+    <version>1.0.0</version>
+    <packaging>pom</packaging>
+    
+    <modules>
+        <module>kuber-controller</module>
+        <module>kuber-discovery</module>
+    </modules>
+    
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>2.7.17</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>2021.0.8</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>2.7.14</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <layers>
+                        <enabled>false</enabled>
+                    </layers>
+                    <!--<image>-->
+                    <!--    <name>docker.io/library/${project.artifactId}:${project.version}</name>-->
+                    <!--    <builder>paketobuildpacks/builder:base</builder>-->
+                    <!--    <pullPolicy>IF_NOT_PRESENT</pullPolicy>-->
+                    <!--    &lt;!&ndash;<publish>true</publish>&ndash;&gt;-->
+                    <!--    <env>-->
+                    <!--        &lt;!&ndash;<HTTP_PROXY>http://127.0.0.1:7890</HTTP_PROXY>&ndash;&gt;-->
+                    <!--    </env>-->
+                    <!--</image>-->
+                    <!--<docker>
+                        <host>tcp://192.168.99.100:2376</host>
+                        <tlsVerify>true</tlsVerify>
+                        <certPath>/home/user/.minikube/certs</certPath>
+                        <builderRegistry>
+                            <username>user</username>
+                            <password>secret</password>
+                            <url>https://docker.example.com/v1/</url>
+                            <email>user@example.com</email>
+                        </builderRegistry>
+                        <publishRegistry>
+                            <url>${docker.publishRegistry.url}</url>
+                            <username>${docker.publishRegistry.username}</username>
+                            <password>${docker.publishRegistry.password}</password>
+                        </publishRegistry>
+                    </docker>-->
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>dockerfile-maven-plugin</artifactId>
+                <version>1.4.13</version>
+                <executions>
+                    <execution>
+                        <id>default</id>
+                        <goals>
+                            <goal>build</goal>
+                            <goal>push</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <repository>kuber/${project.artifactId}</repository>
+                    <tag>${project.version}</tag>
+                    <buildArgs>
+                        <JAR_FILE>target/${project.build.finalName}.jar</JAR_FILE>
+                    </buildArgs>
+                </configuration>
+            </plugin>
+            <!--<plugin>-->
+            <!--    <groupId>com.google.cloud.tools</groupId>-->
+            <!--    <artifactId>jib-maven-plugin</artifactId>-->
+            <!--    <version>3.4.0</version>-->
+            <!--    <executions>-->
+            <!--        <execution>-->
+            <!--            <phase>package</phase>-->
+            <!--            <goals>-->
+            <!--                <goal>build</goal>-->
+            <!--            </goals>-->
+            <!--        </execution>-->
+            <!--    </executions>-->
+            <!--    <configuration>-->
+            <!--        <container>-->
+            <!--            <jvmFlags>-->
+            <!--                <jvmFlag>-Xms1g</jvmFlag>-->
+            <!--                <jvmFlag>-Xmx1g</jvmFlag>-->
+            <!--            </jvmFlags>-->
+            <!--            <ports>-->
+            <!--                <port>8080</port>-->
+            <!--            </ports>-->
+            <!--        </container>-->
+            <!--        <from>-->
+            <!--            <image>openjdk:8-jdk-alpine</image>-->
+            <!--        </from>-->
+            <!--        <to>-->
+            <!--            <image>example/jib-image:${project.version}</image>-->
+            <!--        </to>-->
+            <!--    </configuration>-->
+            <!--</plugin>-->
+        </plugins>
+    </build>
+</project>

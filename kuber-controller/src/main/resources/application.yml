@@ -1,0 +1,36 @@
+#server:
+#  port: 9999
+#spring:
+#  config:
+#    activate:
+#      on-profile: ecs-app
+#eureka:
+#  instance:
+#    appname: ecs-app
+#  client:
+#    fetch-registry: true
+#    register-with-eureka: true
+#    serviceUrl:
+#      ecs-zone: http://ecs-peer1:8763/eureka/,http://ecs-peer2:8764/eureka/
+#    availability-zones:
+#      shanghai: ecs-zone
+#    region: shanghai
+#
+#---
+#server:
+#  port: 9998
+#spring:
+#  config:
+#    activate:
+#      on-profile: k8s-app
+#eureka:
+#  instance:
+#    appname: k8s-app
+#  client:
+#    fetch-registry: true
+#    register-with-eureka: true
+#    serviceUrl:
+#      k8s-zone: http://k8s-peer1:8761/eureka/,http://k8s-peer2:8762/eureka/
+#    availability-zones:
+#      shanghai: k8s-zone
+#    region: shanghai
