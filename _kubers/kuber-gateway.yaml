@@ -1,29 +1,28 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: kuber-controller
+  name: kuber-gateway
   labels:
-    app.kubernetes.io/name: kuber-controller
+    app.kubernetes.io/name: kuber-gateway
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app.kubernetes.io/name: kuber-controller
+      app.kubernetes.io/name: kuber-gateway
   template:
     metadata:
-      name: kuber-controller
+      name: kuber-gateway
       labels:
-        app.kubernetes.io/name: kuber-controller
-        app.kubernetes.io/instance: kuber-controller
+        app.kubernetes.io/name: kuber-gateway
+        app.kubernetes.io/instance: kuber-gateway
         app.kubernetes.io/version: 1.0.0
-        app.kubernetes.io/component: controller
+        app.kubernetes.io/component: gateway
         app.kubernetes.io/part-of: kubers
         app.kubernetes.io/managed-by: kuber
     spec:
-#      terminationGracePeriodSeconds: 30
       containers:
-        - name: kuber-controller
-          image: kuber/kuber-controller:1.0.0
+        - name: kuber-gateway
+          image: kuber/kuber-gateway:1.0.0
           imagePullPolicy: IfNotPresent
           env:
             - name: JAVA_TOOL_OPTIONS
@@ -32,6 +31,10 @@ spec:
               value: Asia/Shanghai
             - name: SPRING_CONFIG_LOCATION
               value: 'optional:classpath:/,optional:classpath:/config/,optional:file:./,optional:file:./config/'
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
 #          livenessProbe:
 #            timeoutSeconds: 5
 #            periodSeconds: 10
@@ -54,16 +57,17 @@ spec:
 #          lifecycle:
 #            preStop:
 #              exec:
-#                command: ["sh", "-c", "sleep 10"]
+#                command: [ "sh", "-c", "sleep 10" ]
           ports:
-            - containerPort: 9999
+            - containerPort: 9000
           volumeMounts:
-            - mountPath: /config
+            - mountPath: /application.yml
               name: config
+              subPath: application.yml
       volumes:
         - name: config
           configMap:
-            name: kuber-controller
+            name: kuber-gateway
             items:
               - key: application.yml
                 path: application.yml
@@ -74,53 +78,39 @@ spec:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: kuber-controller
+  name: kuber-gateway
 data:
-  "application.yml": |
-    server.port: 9999
-    spring: 
-      application: 
-        name: kuber-controller
+  application.yml: |
+    server.port: 9000
+    spring:
+      application:
+        name: kuber-gateway
+      cloud:
+        gateway:
+          routes:
+            - id: kuber-controller
+              uri: http://kuber-controller.default.svc:9999
+              predicates:
+                - Path=/**
     eureka:
       instance:
         prefer-ip-address: true
       client:
         service-url:
           defaultZone: http://kuber-discovery-0.kuber-discovery.default.svc:8761/eureka/,http://kuber-discovery-1.kuber-discovery.default.svc:8761/eureka/,http://kuber-discovery-2.kuber-discovery.default.svc:8761/eureka/
+            
 
 ---
 
 apiVersion: v1
 kind: Service
 metadata:
-  name: kuber-controller
+  name: kuber-gateway
 spec:
   selector:
-    app.kubernetes.io/name: kuber-controller
+    app.kubernetes.io/name: kuber-gateway
   ports:
     - protocol: TCP
-      port: 9999
-      targetPort: 9999
-      nodePort: 32000
+      port: 9000
+      targetPort: 9000
   type: NodePort
-
-#---
-#
-#apiVersion: networking.k8s.io/v1
-#kind: Ingress
-#metadata:
-#  name: nginx-ingress
-#  annotations:
-#    nginx.ingress.kubernetes.io/rewrite-target: /
-#spec:
-#  ingressClassName: nginx
-#  rules:
-#    - http:
-#        paths:
-#          - path: /
-#            pathType: Prefix
-#            backend:
-#              service:
-#                name: kuber-controller
-#                port:
-#                  number: 80

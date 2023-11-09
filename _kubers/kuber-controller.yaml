@@ -1,0 +1,105 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kuber-controller
+  labels:
+    app.kubernetes.io/name: kuber-controller
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kuber-controller
+  template:
+    metadata:
+      name: kuber-controller
+      labels:
+        app.kubernetes.io/name: kuber-controller
+        app.kubernetes.io/instance: kuber-controller
+        app.kubernetes.io/version: 1.0.0
+        app.kubernetes.io/component: controller
+        app.kubernetes.io/part-of: kubers
+        app.kubernetes.io/managed-by: kuber
+    spec:
+#      terminationGracePeriodSeconds: 30
+      containers:
+        - name: kuber-controller
+          image: kuber/kuber-controller:1.0.0
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: JAVA_TOOL_OPTIONS
+              value: -Xmx256m
+            - name: TZ
+              value: Asia/Shanghai
+            - name: SPRING_CONFIG_LOCATION
+              value: 'optional:classpath:/,optional:classpath:/config/,optional:file:./,optional:file:./config/'
+#          livenessProbe:
+#            timeoutSeconds: 5
+#            periodSeconds: 10
+#            httpGet:
+#              port: 8761
+#              path: /actuator/health/liveness
+#          readinessProbe:
+#            timeoutSeconds: 5
+#            periodSeconds: 10
+#            httpGet:
+#              port: 8761
+#              path: /actuator/health/readiness
+#          resources:
+#            requests:
+#              memory: "64Mi"
+#              cpu: "250m"
+#            limits:
+#              memory: "128Mi"
+#              cpu: "500m"
+#          lifecycle:
+#            preStop:
+#              exec:
+#                command: ["sh", "-c", "sleep 10"]
+          ports:
+            - containerPort: 9999
+          volumeMounts:
+            - mountPath: /config
+              name: config
+      volumes:
+        - name: config
+          configMap:
+            name: kuber-controller
+            items:
+              - key: application.yml
+                path: application.yml
+      restartPolicy: Always
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kuber-controller
+data:
+  "application.yml": |
+    server.port: 9999
+    spring: 
+      application: 
+        name: kuber-controller
+    eureka:
+      instance:
+        prefer-ip-address: true
+      client:
+        service-url:
+          defaultZone: http://kuber-discovery-0.kuber-discovery.default.svc:8761/eureka/,http://kuber-discovery-1.kuber-discovery.default.svc:8761/eureka/,http://kuber-discovery-2.kuber-discovery.default.svc:8761/eureka/
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: kuber-controller
+spec:
+  selector:
+    app.kubernetes.io/name: kuber-controller
+  ports:
+    - protocol: TCP
+      port: 9999
+      targetPort: 9999
+  type: NodePort
+

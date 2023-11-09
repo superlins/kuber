@@ -5,6 +5,8 @@
     <file url="file://$PROJECT_DIR$/kuber-controller/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/kuber-discovery/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/kuber-discovery/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/kuber-gateway/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/kuber-gateway/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/kuber-minio/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/kuber-minio/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/kuber-process/src/main/java" charset="UTF-8" />
