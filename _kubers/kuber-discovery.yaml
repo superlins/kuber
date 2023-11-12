@@ -4,7 +4,7 @@ metadata:
   name: kuber-discovery
 data:
   "application.json": |
-    {"server":{"port":8761,"shutdown":"graceful"},"management":{"endpoints.web.exposure.include":"*","endpoint.health.probes.enabled":true},"eureka":{"server":{"enable-self-preservation":false},"client":{"fetch-registry":false,"register-with-eureka":false,"service-url":{"defaultZone":"http://kuber-discovery-0.kuber-discovery.default.svc:8761/eureka/,http://kuber-discovery-1.kuber-discovery.default.svc:8761/eureka/,http://kuber-discovery-2.kuber-discovery.default.svc:8761/eureka/"}}}}
+    {"server":{"port":8761,"shutdown":"graceful"},"management":{"endpoints.web.exposure.include":"*","endpoint.health.probes.enabled":true},"eureka":{"server":{"enable-self-preservation":false},"client":{"fetch-registry":false,"register-with-eureka":false,"service-url":{"defaultZone":"http://kuber-discovery-0.kuber-discovery.default.svc:${server.port}/eureka/,http://kuber-discovery-1.kuber-discovery.default.svc:${server.port}/eureka/,http://kuber-discovery-2.kuber-discovery.default.svc:${server.port}/eureka/"}}}}
 
 ---
 
