@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: counter
+spec:
+  volumes:
+    - name: pvc-volume
+      persistentVolumeClaim:
+        claimName: task-pv-claim
+  containers:
+    - name: counter
+      image: busybox:1.28
+      args:
+        - /bin/sh
+        - '-c'
+        - |
+          i=0; while true; do
+            echo "$i: $(date)" >> /var/log1/1.log;
+            echo "$i: $(date)" >> /var/log2/2.log;
+            i=$((i+1));
+            sleep 1;
+          done
+      volumeMounts:
+        - name: pvc-volume
+          mountPath: /var/log1
+        - name: pvc-volume
+          mountPath: /var/log2
