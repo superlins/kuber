@@ -1,3 +1,4 @@
+---
 apiVersion: v1
 kind: Pod
 metadata:
@@ -14,7 +15,6 @@ spec:
           while true;
           do
             echo "$i: $(date)" >> /var/log/1.log;
-            echo "$(date) INFO $i" >> /var/log/2.log;
             i=$((i+1));
             sleep 1;
           done
@@ -22,15 +22,15 @@ spec:
         - name: varlog
           mountPath: /var/log
     - name: count-agent
-      image: registry.k8s.io/fluentd-gcp:1.30
-      env:
-        - name: FLUENTD_ARGS
-          value: -c /etc/fluentd-config/fluentd.conf
+      image: fluentd:latest
+      args:
+        - -c
+        - /etc/fluentd/fluentd.conf
       volumeMounts:
         - name: varlog
           mountPath: /var/log
         - name: config-volume
-          mountPath: /etc/fluentd-config
+          mountPath: /etc/fluentd
   volumes:
     - name: varlog
       emptyDir: {}
@@ -39,7 +39,6 @@ spec:
         name: fluentd-config
 
 ---
-
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -54,14 +53,6 @@ data:
       tag count.format1
     </source>
 
-    <source>
-      type tail
-      format none
-      path /var/log/2.log
-      pos_file /var/log/2.log.pos
-      tag count.format2
-    </source>
-
     <match **>
-      type google_cloud
+      type stdout
     </match>    
