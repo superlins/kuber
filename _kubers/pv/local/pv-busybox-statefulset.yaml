@@ -1,0 +1,57 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: counter
+spec:
+  selector:
+    app: counter
+  clusterIP: None
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: counter
+spec:
+  selector:
+    matchLabels:
+      app: counter
+  serviceName: "counter"
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: counter
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: counter
+          image: busybox:1.28
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          args:
+            - /bin/sh
+            - -c
+            - >
+              i=0;
+              while true;
+              do
+                echo "$i: $(POD_NAME) $(date)" >> /var/log/1.log;
+                i=$((i+1));
+                sleep 1;
+              done
+          volumeMounts:
+            - name: pvc-volume
+              mountPath: /var/log
+  volumeClaimTemplates:
+    - metadata:
+        name: pvc-volume
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        storageClassName: "local-storage"
+        resources:
+          requests:
+            storage: 1Gi

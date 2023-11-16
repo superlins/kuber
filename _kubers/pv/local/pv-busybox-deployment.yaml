@@ -2,8 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: counter
-  labels:
-    app: counter
 spec:
   replicas: 2
   selector:
@@ -39,4 +37,5 @@ spec:
       volumes:
         - name: pvc-volume
           persistentVolumeClaim:
-            claimName: task-pv-claim
+            claimName: local-pv-claim
+
