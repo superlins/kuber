@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <springProperty scope="context" name="LOG_LEVEL" source="logging.level.root"/>
+
+    <property name="LOG_FILE" value="${LOG_FILE:-service.log}" />
+    <property name="LOG_PATH" value="${LOG_PATH:-logs}" />
+
+    <property name="LOGBACK_ROLLINGPOLICY_FILE_NAME_PATTERN" value="${LOGBACK_ROLLINGPOLICY_FILE_NAME_PATTERN:-${LOG_FILE}.%d{yyyyMMdd}.%i.gz}" />
+    <property name="LOGBACK_ROLLINGPOLICY_MAX_FILE_SIZE" value="${LOGBACK_ROLLINGPOLICY_MAX_FILE_SIZE:-100MB}" />
+    <property name="LOGBACK_ROLLINGPOLICY_TOTAL_SIZE_CAP" value="${LOGBACK_ROLLINGPOLICY_TOTAL_SIZE_CAP:-10GB}" />
+    <property name="LOGBACK_ROLLINGPOLICY_MAX_HISTORY" value="${LOGBACK_ROLLINGPOLICY_MAX_HISTORY:-30}" />
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder charset="${CONSOLE_LOG_CHARSET}">
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${LOG_FILE}</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/${LOGBACK_ROLLINGPOLICY_FILE_NAME_PATTERN}</fileNamePattern>
+            <maxFileSize>${LOGBACK_ROLLINGPOLICY_MAX_FILE_SIZE}</maxFileSize>
+            <maxHistory>${LOGBACK_ROLLINGPOLICY_MAX_HISTORY}</maxHistory>
+            <totalSizeCap>${LOGBACK_ROLLINGPOLICY_TOTAL_SIZE_CAP}</totalSizeCap>
+        </rollingPolicy>
+        <encoder charset="${FILE_LOG_CHARSET}">
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+            <outputPatternAsHeader>false</outputPatternAsHeader>
+        </encoder>
+    </appender>
+
+    <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/error/${LOG_FILE}</file>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/error/${LOGBACK_ROLLINGPOLICY_FILE_NAME_PATTERN}</fileNamePattern>
+            <maxFileSize>${LOGBACK_ROLLINGPOLICY_MAX_FILE_SIZE}</maxFileSize>
+            <maxHistory>${LOGBACK_ROLLINGPOLICY_MAX_HISTORY}</maxHistory>
+            <totalSizeCap>${LOGBACK_ROLLINGPOLICY_TOTAL_SIZE_CAP}</totalSizeCap>
+        </rollingPolicy>
+        <encoder charset="${FILE_LOG_CHARSET}">
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+            <outputPatternAsHeader>false</outputPatternAsHeader>
+        </encoder>
+    </appender>
+
+    <!--<appender name="ASYNC_INFO" class="ch.qos.logback.classic.AsyncAppender">-->
+    <!--    <discardingThreshold>0</discardingThreshold>-->
+    <!--    <queueSize>256</queueSize>-->
+    <!--    <appender-ref ref="FILE"/>-->
+    <!--</appender>-->
+
+    <!--<appender name="ASYNC_ERROR_FILE" class="ch.qos.logback.classic.AsyncAppender">-->
+    <!--    <discardingThreshold>0</discardingThreshold>-->
+    <!--    <queueSize>256</queueSize>-->
+    <!--    <appender-ref ref="ERROR_FILE"/>-->
+    <!--</appender>-->
+
+    <appender name="PRUDENT" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <prudent>true</prudent>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/prudent/${LOG_FILE}.%d{yyyyMMdd}.%i</fileNamePattern>
+            <maxFileSize>100KB</maxFileSize>
+        </rollingPolicy>
+        <encoder charset="${FILE_LOG_CHARSET}">
+            <pattern>%msg%n</pattern>
+            <outputPatternAsHeader>false</outputPatternAsHeader>
+        </encoder>
+    </appender>
+
+    <logger name="PRUDENT_LOGGER" level="INFO" additivity="false">
+        <appender-ref ref="PRUDENT"/>
+    </logger>
+
+    <root level="${LOG_LEVEL}">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="ERROR_FILE"/>
+    </root>
+</configuration>
