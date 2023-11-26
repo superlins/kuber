@@ -34,3 +34,9 @@
 #    availability-zones:
 #      shanghai: k8s-zone
 #    region: shanghai
+
+#management:
+#  endpoint:
+#    health:
+#      probes:
+#        enabled: true

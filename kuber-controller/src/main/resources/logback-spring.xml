@@ -2,7 +2,7 @@
 <configuration>
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
 
-    <springProperty scope="context" name="LOG_LEVEL" source="logging.level.root"/>
+    <springProperty scope="context" name="LOG_LEVEL" source="logging.level.root" defaultValue="info"/>
 
     <property name="LOG_FILE" value="${LOG_FILE:-service.log}" />
     <property name="LOG_PATH" value="${LOG_PATH:-logs}" />
@@ -61,21 +61,20 @@
     <!--    <appender-ref ref="ERROR_FILE"/>-->
     <!--</appender>-->
 
-    <appender name="PRUDENT" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <prudent>true</prudent>
-        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_PATH}/prudent/${LOG_FILE}.%d{yyyyMMdd}.%i</fileNamePattern>
-            <maxFileSize>100KB</maxFileSize>
-        </rollingPolicy>
-        <encoder charset="${FILE_LOG_CHARSET}">
-            <pattern>%msg%n</pattern>
-            <outputPatternAsHeader>false</outputPatternAsHeader>
-        </encoder>
-    </appender>
+    <!-- <appender name="PRUDENT" class="ch.qos.logback.core.rolling.RollingFileAppender"> -->
+    <!--     <prudent>true</prudent> -->
+    <!--     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy"> -->
+    <!--         <fileNamePattern>${LOG_PATH}/prudent/${LOG_FILE}.%d{yyyyMMdd}.%i</fileNamePattern> -->
+    <!--     </rollingPolicy> -->
+    <!--     <encoder charset="${FILE_LOG_CHARSET}"> -->
+    <!--         <pattern>%msg%n</pattern> -->
+    <!--         <outputPatternAsHeader>false</outputPatternAsHeader> -->
+    <!--     </encoder> -->
+    <!-- </appender> -->
 
-    <logger name="PRUDENT_LOGGER" level="INFO" additivity="false">
-        <appender-ref ref="PRUDENT"/>
-    </logger>
+    <!-- <logger name="PRUDENT_LOGGER" level="INFO" additivity="false"> -->
+    <!--     <appender-ref ref="PRUDENT"/> -->
+    <!-- </logger> -->
 
     <root level="${LOG_LEVEL}">
         <appender-ref ref="CONSOLE"/>

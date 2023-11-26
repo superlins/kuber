@@ -20,7 +20,7 @@ spec:
         app.kubernetes.io/part-of: kubers
         app.kubernetes.io/managed-by: kuber
     spec:
-#      terminationGracePeriodSeconds: 30
+      terminationGracePeriodSeconds: 30
       containers:
         - name: kuber-controller
           image: kuber/kuber-controller:1.0.0
@@ -32,29 +32,35 @@ spec:
               value: Asia/Shanghai
             - name: SPRING_CONFIG_LOCATION
               value: 'optional:classpath:/,optional:classpath:/config/,optional:file:./,optional:file:./config/'
-#          livenessProbe:
-#            timeoutSeconds: 5
-#            periodSeconds: 10
-#            httpGet:
-#              port: 8761
-#              path: /actuator/health/liveness
-#          readinessProbe:
-#            timeoutSeconds: 5
-#            periodSeconds: 10
-#            httpGet:
-#              port: 8761
-#              path: /actuator/health/readiness
-#          resources:
-#            requests:
-#              memory: "64Mi"
-#              cpu: "250m"
-#            limits:
-#              memory: "128Mi"
-#              cpu: "500m"
-#          lifecycle:
-#            preStop:
-#              exec:
-#                command: ["sh", "-c", "sleep 10"]
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          livenessProbe:
+            initialDelaySeconds: 30
+            timeoutSeconds: 1
+            periodSeconds: 10
+            httpGet:
+              port: 9999
+              path: /actuator/health/liveness
+          readinessProbe:
+            initialDelaySeconds: 30
+            timeoutSeconds: 1
+            periodSeconds: 10
+            httpGet:
+              port: 9999
+              path: /actuator/health/readiness
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          lifecycle:
+            preStop:
+              exec:
+                command: ["sh", "-c", "sleep 10"]
           ports:
             - containerPort: 9999
           volumeMounts:
@@ -81,12 +87,15 @@ data:
     spring: 
       application: 
         name: kuber-controller
-    eureka:
-      instance:
-        prefer-ip-address: true
-      client:
-        service-url:
-          defaultZone: http://kuber-discovery-0.kuber-discovery.default.svc:8761/eureka/,http://kuber-discovery-1.kuber-discovery.default.svc:8761/eureka/,http://kuber-discovery-2.kuber-discovery.default.svc:8761/eureka/
+    logging:
+      file:
+        path: /logs
+        name: ${POD_NAME}.log
+    management:
+      endpoint:
+        health:
+          probes:
+            enabled: true
 
 ---
 
